@@ -1,17 +1,35 @@
-import 'package:flutter/material.dart';
+
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart'; 
-import 'core/theme/app_colors.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 
-void main() async {
+final ValueNotifier<bool> kLoggingIn = ValueNotifier<bool>(false);
+const Color kNavy = Color(0xFF0B1F4B);
+const Color kBlue = Color(0xFF1E5AA8);
+const Color kTeal = Color(0xFF1B8A9E);
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Membaca konfigurasi langsung dari file google-services.json
-  await Firebase.initializeApp(); 
-  
-  runApp(const VeloraApp());
+
+  try {
+    await Firebase.initializeApp();
+
+    runApp(const VeloraApp());
+  } catch (error, stackTrace) {
+    debugPrint('Firebase initialization error: $error');
+    debugPrintStack(stackTrace: stackTrace);
+
+    runApp(
+      VeloraStartupError(
+        message:
+            'VELORA gagal terhubung ke Firebase. '
+            'Periksa konfigurasi Firebase dan koneksi aplikasi.',
+      ),
+    );
+  }
 }
 
 class VeloraApp extends StatelessWidget {
@@ -24,21 +42,20 @@ class VeloraApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        scaffoldBackgroundColor: AppColors.background,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          primary: AppColors.primary,
-          secondary: AppColors.secondary,
+          seedColor: kBlue,
+          primary: kBlue,
+          secondary: kTeal,
         ),
-        fontFamily: 'Poppins', 
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            minimumSize: const Size(double.infinity, AppColors.buttonHeight),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppColors.borderRadius),
-            ),
+        scaffoldBackgroundColor: const Color(0xFFF2F5FA),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: kNavy,
+          foregroundColor: Colors.white,
+          centerTitle: false,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),
@@ -47,6 +64,7 @@ class VeloraApp extends StatelessWidget {
   }
 }
 
+/// Mengatur tampilan berdasarkan status autentikasi Firebase.
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
@@ -57,14 +75,100 @@ class AuthGate extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+            body: Center(
+              child: CircularProgressIndicator(
+                color: kTeal,
+              ),
+            ),
           );
         }
-        if (snapshot.hasData) {
+
+        if (snapshot.hasError) {
+          return const VeloraStartupError(
+            message:
+                'Gagal memeriksa status login. '
+                'Silakan periksa koneksi dan konfigurasi Firebase.',
+          );
+        }
+
+        if (snapshot.data != null) {
           return const DashboardScreen();
         }
+
         return const LoginScreen();
       },
+    );
+  }
+}
+
+/// Ditampilkan jika aplikasi gagal melakukan inisialisasi.
+class VeloraStartupError extends StatelessWidget {
+  final String message;
+
+  const VeloraStartupError({
+    super.key,
+    required this.message,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'VELORA',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: kBlue),
+      ),
+      home: Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.cloud_off_outlined,
+                    size: 64,
+                    color: Colors.redAccent,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'VELORA tidak dapat dimulai',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: kNavy,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton.icon(
+                    onPressed: () { 
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (_) => const VeloraStartupError(
+                            message:
+                                'Silakan tutup dan buka kembali '
+                                'aplikasi setelah konfigurasi diperbaiki.',
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.info_outline),
+                    label: const Text('Informasi'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
