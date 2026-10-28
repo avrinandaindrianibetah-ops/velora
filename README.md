@@ -1,7 +1,7 @@
-# VELORA (Aplikasi Monitoring Kehadiran Mahasiswa)
+# VELORA (Aplikasi Monitoring Kehadiran Siswa)
 
 ## 📌 Tujuan Proyek
-Aplikasi mobile berbasis Flutter yang dikembangkan sebagai Proyek Akhir / Kelas Mandiri Pemrograman Perangkat Bergerak. VELORA dirancang untuk memantau kehadiran mahasiswa secara mandiri dengan mengusung sistem anti-kecurangan (*Hardware Binding*) dan ketahanan jaringan (*Offline-First* berbasis SQLite serta *Background Sync*).
+Aplikasi mobile berbasis Flutter yang dikembangkan sebagai Proyek Akhir / Kelas Mandiri Pemrograman Perangkat Bergerak. VELORA dirancang untuk memantau kehadiran siswa di sekolah SMA Negeri 2 Tondano secara mandiri dengan mengusung sistem anti-kecurangan (*Hardware Binding*) dan ketahanan jaringan (*Offline-First* berbasis SQLite serta *Background Sync*).
 
 ## 👥 Anggota Kelompok & Peran
 - **Christian Rambing** - Project Manager / Scrum Master
@@ -20,9 +20,5 @@ Aplikasi mobile berbasis Flutter yang dikembangkan sebagai Proyek Akhir / Kelas 
 1. **Authentication & Hardware Device Binding:** Mencegah praktik titip absen dengan mengunci akun pada satu ID perangkat keras unik.
 2. **Offline-First Resilience:** Memungkinkan penyimpanan data presensi secara lokal saat terjadi *blank spot* di ruang kelas, dan melakukan sinkronisasi otomatis (*background sync*) saat jaringan pulih.
 3. **Dashboard Analitik & Early Warning System (EWS):** Visualisasi persentase kehadiran dan notifikasi otomatis batas aman kehadiran mahasiswa.
-4. **Validasi Spasial & Anti-Fake GPS:** Pengecekan radius *geo-fencing* 50 meter dari titik kampus dan deteksi *Mock Location*.
+4. **Validasi Spasial & Anti-Fake GPS:** Pengecekan radius *geo-fencing* 50 meter dari titik sekolah dan deteksi *Mock Location*.
 
-## 🚀 Cara Menjalankan Proyek
-1. Clone repository ini ke perangkat lokal Anda:
-   ```bash
-   git clone [https://github.com/avrinandaindrianibetah-ops/velora.git](https://github.com/avrinandaindrianibetah-ops/velora.git)
